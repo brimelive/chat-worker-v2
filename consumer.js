@@ -16,6 +16,7 @@ const {
     channelChatLangs,
     getGif,
     modCheck,
+    deleteMessage,
 } = require('./db')
 const {
     parseMentions,
@@ -76,7 +77,8 @@ class Consumer{
                   console.error('User is not a mod')
                   return channel.ack(msg)
               }else {
-                  console.log('Deleting message')
+                  const deleteQuery = await deleteMessage(parsedMsg.meta.delete.msg_id)
+                  console.log(deleteQuery)
                   const deleteMsg = {
                     type: 'delete',
                     targetMsg: parsedMsg.meta.delete.msg_id,
@@ -86,7 +88,6 @@ class Consumer{
                     user,
                     timestamp: Date.now(),
                   }
-                  console.log(JSON.stringify(deleteMsg))
                   publish("channel/chat/receive/" + deleteMsg.channel, deleteMsg)
                   return channel.ack(msg)
               }

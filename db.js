@@ -13,10 +13,8 @@ const getReplyTarget = async ({xid, channel})=>{
   
   const channelDataLookup = async (channel)=>{
     if(!channel) return false
-    console.log(channel)
     // AND DELETED = 0 (remove the unnecessary check unless we want to return <message:deleted> or an error (Message you're trying to reply to has been delete))
     let {rows, error} = await database.query('SELECT * FROM CHANNELS WHERE XID = :channel', {channel})
-    console.log(rows, error)
     if(rows.length > 0) return rows[0]
   }
   const ownerCheck = async(channel, user_xid)=>{
@@ -43,6 +41,13 @@ const getReplyTarget = async ({xid, channel})=>{
     // AND DELETED = 0 (remove the unnecessary check unless we want to return <message:deleted> or an error (Message you're trying to reply to has been delete))
     let {rows} = await database.query('SELECT DISTINCT CHAT_LANG FROM CHANNEL_CHATTERS WHERE CHANNEL_XID = :CHANNEL', {channel})
     if(rows.length > 0) return rows
+  }
+  const deleteMessage = async (msg_xid)=>{
+    if(!msg_xid) return false
+    // AND DELETED = 0 (remove the unnecessary check unless we want to return <message:deleted> or an error (Message you're trying to reply to has been delete))
+    const {result} = await database.query('UPDATE CHAT_MESSAGES SET DELETED = 1 WHERE XID = :msg_xid', {msg_xid})
+    if(result.rowsAffected > 0) return {success: true, message: `Message ${msg_xid} deleted`}
+    return {success: false, message: `Message ${msg_xid} not found`}
   }
   const getGif = async(message, o)=>{
     let id = message.content.split(' ').pop()
@@ -88,4 +93,5 @@ module.exports = {
     getGif,
     modCheck,
     deleteMsg,
+    deleteMessage,
 }
