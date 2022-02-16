@@ -17,6 +17,8 @@ const {
     getGif,
     modCheck,
     deleteMessage,
+    channelBanUser,
+    banCheck,
 } = require('./db')
 const {
     parseMentions,
@@ -67,6 +69,11 @@ class Consumer{
             return channel.ack(msg)
           }
           const u_channel = packet.channel.split('/').pop()
+          const isChannelBanned = await banCheck(u_channel, packet.username)
+          if(isChannelBanned){
+            console.log(`${packet.username} is banned from ${u_channel}`)
+            return channel.ack(msg)
+        }
           const channelData = await channelDataLookup(u_channel)
           if(!channelData)return{error: `Channel ${u_channel} not found.`}
           const {user, error} = await self.db.user.get(packet.username)
@@ -92,6 +99,29 @@ class Consumer{
                   return channel.ack(msg)
               }
           }
+          if(parsedMsg.type == 'ban'){
+            if(!isMod){
+                console.error('User is not a mod')
+                return channel.ack(msg)
+            }else {
+                const banQuery = await channelBanUser(u_channel, parsedMsg.meta.ban.user, Date.now())
+                const userQuery = await database.getUser(parsedMsg.meta.ban.user)
+                message.content = `${userQuery.user.username} has been banned from this channel.`
+                const banMsg = {
+                  type: 'ban',
+                  targetUser: parsedMsg.meta.ban.user,
+                  xid: nanoid(),
+                  topic: packet.channel,
+                  channel: u_channel,
+                  user,
+                  timestamp: Date.now(),
+                  reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
+                  content: await parseMessage({message, channel: u_channel})
+                }
+                publish("channel/chat/receive/" + banMsg.channel, banMsg)
+                return channel.ack(msg)
+            }
+        }
         //   if(user.is_banned == 1){
         //     console.error(`User ${packet.username} is banned.`)
         //     user.displayname = 'UNAUTHORIZED'

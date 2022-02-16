@@ -131,6 +131,7 @@ module.exports = {
     initialize,
     query,
     getUserBySlug,
+    getUser,
     user: {
       get: getUser,
       getAll: getUsers

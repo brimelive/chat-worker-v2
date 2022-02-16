@@ -11,6 +11,18 @@ const {
     getGif,
     deleteMsg
 } = require('./db')
+const banParse = async(message, o)=>{
+    let user = message.content.split(' ').pop()
+    return {
+      type: 'ban',
+      meta: {
+        ...o.meta,
+        ban: {
+          user
+        }
+      }
+    }
+  }
 const parseMentions = async (message) => {
     const re = /@([^@\s]{1,})/g
     const matches = message.parsed.matchAll(re) || []
@@ -212,6 +224,9 @@ const parseMessage = async ({message, channel})=>{
   }
   if(message.content.startsWith('/delete')){
     r = {...r, ...await deleteMsg(message, r)}
+  }
+  if(message.content.startsWith('/ban')){
+    r = {...r, ...await banParse(message, r)}
   }
     else {
     await parseLinks(r)
