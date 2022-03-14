@@ -164,12 +164,40 @@ class Consumer{
             user,
             timestamp: Date.now(),
             reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
-            content: await parseMessage({message, channel: u_channel})
+            content: parsedMsg
           }
     
           publish("channel/chat/receive/" + return_message.channel, return_message)
           self.db.message.store(return_message)
           channel.ack(msg)
+          console.log(user)
+          // Message contained a valid command, let's build the response
+          if(parsedMsg.meta.command){
+            console.log('This Message Contained a Valid Command')
+            message.content = await parsedMsg.meta.command.RESPONSE
+            message.reply_target = return_message.xid
+            const chatBotName = await database.getChannelBot(u_channel)
+            const chatBotUser = {
+              "xid": "dK9AZWroow9jhT5ak7ge",
+              "legacy_id": "603b901b0a8fe286fc6f1229",
+              "displayname": chatBotName.name,
+              "username": chatBotName.name,
+              "color": "#a2d2ff",
+              "is_bot": true,
+              "is_banned": 0
+            }
+            const commandMsg = {
+              xid: nanoid(),
+              topic: packet.channel,
+              channel: u_channel,
+              user: chatBotUser,
+              timestamp: Date.now(),
+              reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
+              content: await parseMessage({message, channel: u_channel})
+            }
+            self.db.message.store(commandMsg)
+            publish("channel/chat/receive/" + commandMsg.channel, commandMsg)
+          }
         }, {
               noAck: false
       });

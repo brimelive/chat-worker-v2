@@ -82,6 +82,20 @@ const getUserBySlug = async (slug)=>{
   }
 }
 
+const getChannelCommands = async (channel)=>{
+  let {error, rows} = await query('SELECT XID, COMMAND, RESPONSE FROM CHAT_COMMANDS WHERE CHANNEL_XID = :channel', {channel})
+  if(error) return {error}
+  if(!rows.length) return []
+  return rows
+}
+
+const getChannelBot = async (channel)=>{
+  let {error, rows} = await query('SELECT NAME FROM CHAT_BOT_NAMES WHERE CHANNEL_XID = :channel', {channel})
+  if(error) return {error}
+  if(!rows.length) return {name: 'BrimeBot'}
+  return rows.NAME
+}
+
 const getUsers = async (users)=>{
   if(!users || !users.length) return []
   let placeholder = ''
@@ -130,8 +144,10 @@ module.exports = {
     close,
     initialize,
     query,
+    getChannelCommands,
     getUserBySlug,
-    getUser,
+    getChannelBot,
+    getUser,    
     user: {
       get: getUser,
       getAll: getUsers

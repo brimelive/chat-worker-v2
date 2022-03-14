@@ -196,6 +196,30 @@ const parseEmotes = async (message) => {
     return message.meta.emotes = matched
 }
 
+const parseCommands = async (message, channel) => {
+    const words = message.raw.split("\\s+");
+    let channelCommands = []
+    channelCommands = await database.getChannelCommands(channel)
+    if(channelCommands.length > 0){
+        let cmdList = []
+        channelCommands.forEach(function (arrayItem){
+            cmdList.push(arrayItem.COMMAND)
+        })
+        channelCommands.push({
+            COMMAND: '!commands',
+            RESPONSE: cmdList.join(", ")
+        })
+    }
+    console.log(channelCommands)
+    if(channelCommands.length < 1) channelCommands = [{COMMAND: '!commands', RESPONSE: 'This channel has no commands'}]
+    console.log(channelCommands)
+    words.forEach(p => {
+        let check = channelCommands.find(c => c.COMMAND === p)
+        if (check) return message.meta.command = check
+        else return
+    })
+}
+
 const escapeHTML = raw => raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
 
 const parseMessage = async ({message, channel})=>{
@@ -229,6 +253,7 @@ const parseMessage = async ({message, channel})=>{
     r = {...r, ...await banParse(message, r)}
   }
     else {
+    await parseCommands(r, channel)
     await parseLinks(r)
     await parseMentions(r)
     await parseEmotes(r)
