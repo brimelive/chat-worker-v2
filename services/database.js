@@ -93,7 +93,7 @@ const getChannelBot = async (channel)=>{
   let {error, rows} = await query('SELECT NAME FROM CHAT_BOT_NAMES WHERE CHANNEL_XID = :channel', {channel})
   if(error) return {error}
   if(!rows.length) return {name: 'BrimeBot'}
-  return rows.NAME
+  return rows[0].NAME
 }
 
 const getUsers = async (users)=>{
