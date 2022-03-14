@@ -170,7 +170,6 @@ class Consumer{
           publish("channel/chat/receive/" + return_message.channel, return_message)
           self.db.message.store(return_message)
           channel.ack(msg)
-          console.log(user)
           // Message contained a valid command, let's build the response
           if(parsedMsg.meta.command){
             console.log('This Message Contained a Valid Command')

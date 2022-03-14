@@ -210,9 +210,7 @@ const parseCommands = async (message, channel) => {
             RESPONSE: cmdList.join(", ")
         })
     }
-    console.log(channelCommands)
     if(channelCommands.length < 1) channelCommands = [{COMMAND: '!commands', RESPONSE: 'This channel has no commands'}]
-    console.log(channelCommands)
     words.forEach(p => {
         let check = channelCommands.find(c => c.COMMAND === p)
         if (check) return message.meta.command = check
