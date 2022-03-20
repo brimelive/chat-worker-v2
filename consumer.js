@@ -187,10 +187,30 @@ class Consumer{
           console.log(channelLangs)
           // TRANSLATION STUFF
           function translateMsg(msg, lang) {
+            supportsFormality = [
+            "DE",
+            "FR", 
+            "IT",
+            "ES",
+            "NL",
+            "PL",
+            "PT-PT", 
+            "PT-BR",
+            "RU"
+          ]
+            let formality
+            if (supportsFormality.indexOf(lang) > -1) {
+              // Supports formality
+              formality = "less"
+          } else {
+              // Does not support Formality
+              formality = "default"
+          }
             translate({
               text: msg,
               target_lang: lang,
               auth_key: process.env.deepLKey,
+              formality
               // All optional DeepL parameters available in the official documentation can be defined here as well.
           })
           .then(async result => {
