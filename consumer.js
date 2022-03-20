@@ -84,11 +84,13 @@ class Consumer{
                   console.error('User is not a mod')
                   return channel.ack(msg)
               }else {
-                  const deleteQuery = await deleteMessage(parsedMsg.meta.delete.msg_id)
+                  const linkedXID = await self.db.getLinkedMsgXID(parsedMsg.meta.delete.msg_id)
+                  console.log(linkedXID)
+                  const deleteQuery = await deleteMessage(linkedXID)
                   console.log(deleteQuery)
                   const deleteMsg = {
                     type: 'delete',
-                    targetMsg: parsedMsg.meta.delete.msg_id,
+                    targetMsg: linkedXID,
                     xid: nanoid(),
                     topic: packet.channel,
                     channel: u_channel,

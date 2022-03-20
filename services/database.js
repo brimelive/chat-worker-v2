@@ -89,6 +89,13 @@ const getChannelCommands = async (channel)=>{
   return rows
 }
 
+const getLinkedMsgXID = async (xid)=>{
+  let {error, rows} = await query('SELECT LINKED_XID FROM CHAT_MESSAGES WHERE XID = :xid', {xid})
+  if(error) return {error}
+  if(!rows.length) return []
+  return rows[0].LINKED_XID
+}
+
 const getChannelBot = async (channel)=>{
   let {error, rows} = await query('SELECT NAME FROM CHAT_BOT_NAMES WHERE CHANNEL_XID = :channel', {channel})
   if(error) return {error}
@@ -149,6 +156,7 @@ module.exports = {
     getChannelCommands,
     getUserBySlug,
     getChannelBot,
+    getLinkedMsgXID,
     getUser,    
     user: {
       get: getUser,

@@ -56,7 +56,7 @@ const getReplyTarget = async ({xid, channel})=>{
   const deleteMessage = async (msg_xid)=>{
     if(!msg_xid) return false
     // AND DELETED = 0 (remove the unnecessary check unless we want to return <message:deleted> or an error (Message you're trying to reply to has been delete))
-    const {result} = await database.query('UPDATE CHAT_MESSAGES SET DELETED = 1 WHERE XID = :msg_xid', {msg_xid})
+    const {result} = await database.query('UPDATE CHAT_MESSAGES SET DELETED = 1 WHERE LINKED_XID = :msg_xid', {msg_xid})
     if(result.rowsAffected > 0) return {success: true, message: `Message ${msg_xid} deleted`}
     return {success: false, message: `Message ${msg_xid} not found`}
   }
