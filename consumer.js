@@ -187,7 +187,7 @@ class Consumer{
           console.log(channelLangs)
           // TRANSLATION STUFF
           function translateMsg(msg, lang) {
-            supportsFormality = [
+           const supportsFormality = [
             "DE",
             "FR", 
             "IT",
