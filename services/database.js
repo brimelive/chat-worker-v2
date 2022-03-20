@@ -122,14 +122,16 @@ const getUsers = async (users)=>{
 }
 
 const storeMessage = async(message)=>{
-  let {error} = await query('INSERT INTO CHAT_MESSAGES (XID, CHANNEL, USER_XID, TIMESTAMP, CONTENT, DELETED) VALUES (:xid, :channel, :user_xid, :timestamp, :content, :deleted)', 
+  let {error} = await query('INSERT INTO CHAT_MESSAGES (XID, CHANNEL, USER_XID, TIMESTAMP, CONTENT, DELETED, LANG, LINKED_XID) VALUES (:xid, :channel, :user_xid, :timestamp, :content, :deleted, :lang, :linked_xid)', 
   {
     xid: message.xid,
+    linked_xid: message.linked_xid,
     channel: message.channel,
     user_xid: message.user.xid,
     timestamp: message.timestamp,
     content: JSON.stringify(message),
-    deleted: 0
+    deleted: 0,
+    lang: message.lang
   })
 }
 
