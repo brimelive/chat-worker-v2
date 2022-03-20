@@ -177,12 +177,12 @@ class Consumer{
           const emqxTopics = res.data.data
           let channelLangs = [];
           for (let i = 0; i < emqxTopics.length; i++) {
-          if (emqxTopics[i].topic.includes('cNhuxD2vE5v3os11OTt9')) {
+          if (emqxTopics[i].topic.includes(u_channel)) {
           channelLangs.push(emqxTopics[i].topic.replace(/^.*\/(.*)$/, "$1"));
           }}
           channelLangs.push('english')
           // Remove legacy receive topic where no chat lang is set
-          channelLangs = channelLangs.filter(a => a !== 'cNhuxD2vE5v3os11OTt9')
+          channelLangs = channelLangs.filter(a => a !== u_channel)
           channelLangs = [ ...new Set(channelLangs) ];
           console.log(channelLangs)
           // TRANSLATION STUFF
