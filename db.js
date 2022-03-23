@@ -106,5 +106,6 @@ module.exports = {
     deleteMsg,
     deleteMessage,
     channelBanUser,
-    banCheck
+    banCheck,
+    ownerCheck,
 }

@@ -19,6 +19,7 @@ const {
     deleteMessage,
     channelBanUser,
     banCheck,
+    ownerCheck,
 } = require('./db')
 const {
     parseMentions,
@@ -77,6 +78,7 @@ class Consumer{
           const channelData = await channelDataLookup(u_channel)
           if(!channelData)return{error: `Channel ${u_channel} not found.`}
           const {user, error} = await self.db.user.get(packet.username)
+          user.is_broadcaster = await ownerCheck(u_channel, user.xid)
           const isMod = await modCheck(channelData.XID, user.xid)
           const parsedMsg = await parseMessage({message, channel: u_channel})
           if(parsedMsg.type == 'delete'){

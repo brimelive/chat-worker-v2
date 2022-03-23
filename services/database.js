@@ -51,7 +51,7 @@ async function query(statement, binds = [], opts = {}) {
 }
 
 const getUser = async (xid)=>{
-  let {error, rows} = await query('SELECT XID, DISPLAYNAME, USERNAME, CHAT_COLOR, LEGACY_ID, IS_BANNED FROM USERS WHERE XID = :xid', {xid})
+  let {error, rows} = await query('SELECT XID, DISPLAYNAME, USERNAME, CHAT_COLOR, LEGACY_ID, IS_BANNED, IS_STAFF FROM USERS WHERE XID = :xid', {xid})
   if(error) return {error}
   if(!rows.length) return {error: 'NOT_FOUND', message: 'Invalid user XID provided: ' + xid}
   return {
@@ -61,7 +61,8 @@ const getUser = async (xid)=>{
       displayname: rows[0].DISPLAYNAME,
       username: rows[0].USERNAME,
       color: rows[0].CHAT_COLOR,
-      is_banned: rows[0].IS_BANNED
+      is_banned: rows[0].IS_BANNED,
+      is_staff: Boolean(rows[0].IS_STAFF)
     }
   }
 }
