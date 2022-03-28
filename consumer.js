@@ -170,7 +170,6 @@ class Consumer{
             reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
             content: parsedMsg
           }
-          // publish("channel/chat/receive/" + u_channel, return_message)
           const res = await axios.get('http://150.136.252.208:18083/api/v4/routes', {
           // Axios looks for the `auth` option, and, if it is set, formats a
           // basic auth header for you automatically.
