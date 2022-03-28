@@ -170,7 +170,7 @@ class Consumer{
             reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
             content: parsedMsg
           }
-          publish("channel/chat/receive/" + u_channel, return_message)
+          // publish("channel/chat/receive/" + u_channel, return_message)
           const res = await axios.get('http://150.136.252.208:18083/api/v4/routes', {
           // Axios looks for the `auth` option, and, if it is set, formats a
           // basic auth header for you automatically.
@@ -185,10 +185,11 @@ class Consumer{
           if (emqxTopics[i].topic.includes(u_channel)) {
           channelLangs.push(emqxTopics[i].topic.replace(/^.*\/(.*)$/, "$1"));
           }}
-          channelLangs.push('english')
           // Remove legacy receive topic where no chat lang is set
           channelLangs = channelLangs.filter(a => a !== u_channel)
           channelLangs = [ ...new Set(channelLangs) ];
+          channelLangs = channelLangs.filter(a => a !== 'captions')
+          channelLangs = channelLangs.filter(a => a !== 'english')
           console.log(channelLangs)
           // TRANSLATION STUFF
           function translateMsg(msg, lang) {
@@ -220,8 +221,7 @@ class Consumer{
           })
           .then(async result => {
               // Send the translated version of the message
-              parsedMsg.raw = result.data.translations[0].text
-              parsedMsg.parsed = result.data.translations[0].text
+              const parsedMsg2 = await parseMessage({message: {content: result.data.translations[0].text, reply_target: message.reply_target}, channel: u_channel})
               const translated_message = {
                 xid: nanoid(),
                 linked_xid: return_message.xid,
@@ -230,7 +230,7 @@ class Consumer{
                 user,
                 timestamp: Date.now(),
                 reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
-                content: parsedMsg,
+                content: parsedMsg2,
                 lang: lang
               }
               publish("channel/chat/receive/" + return_message.channel + '/' + lang, translated_message)
