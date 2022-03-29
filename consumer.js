@@ -170,6 +170,7 @@ class Consumer{
             reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
             content: parsedMsg
           }
+          publish("channel/chat/receive/" + return_message.channel + '/source', return_message)
           const res = await axios.get('http://150.136.252.208:18083/api/v4/routes', {
           // Axios looks for the `auth` option, and, if it is set, formats a
           // basic auth header for you automatically.
@@ -189,6 +190,7 @@ class Consumer{
           channelLangs = [ ...new Set(channelLangs) ];
           channelLangs = channelLangs.filter(a => a !== 'captions')
           channelLangs = channelLangs.filter(a => a !== 'english')
+          channelLangs = channelLangs.filter(a => a !== 'source')
           console.log(channelLangs)
           // TRANSLATION STUFF
           function translateMsg(msg, lang) {
