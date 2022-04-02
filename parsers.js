@@ -35,6 +35,18 @@ const banParse = async(message, o)=>{
       }
     }
   }
+  const vipParse = async(message, o)=>{
+    let user = message.content.split(' ').pop()
+    return {
+      type: 'vip',
+      meta: {
+        ...o.meta,
+        vip: {
+          user
+        }
+      }
+    }
+  }
 const parseMentions = async (message) => {
     const re = /@([^@\s]{1,})/g
     const matches = message.parsed.matchAll(re) || []
@@ -261,6 +273,9 @@ const parseMessage = async ({message, channel})=>{
   }
   if(message.content.startsWith('/mod')){
     r = {...r, ...await modParse(message, r)}
+  }
+  if(message.content.startsWith('/vip')){
+    r = {...r, ...await vipParse(message, r)}
   }
   if(message.content.startsWith('/ban')){
     r = {...r, ...await banParse(message, r)}

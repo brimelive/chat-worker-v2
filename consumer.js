@@ -16,6 +16,8 @@ const {
     channelChatLangs,
     getGif,
     modCheck,
+    channelVIPUser,
+    vipCheck,
     deleteMessage,
     channelBanUser,
     channelModUser,
@@ -84,6 +86,10 @@ class Consumer{
           if(isMod){
             user.is_mod = true
           }
+          const isVIP = await vipCheck(channelData.XID, user.xid)
+          if(isVIP){
+            user.is_vip = true
+          }
           const parsedMsg = await parseMessage({message, channel: u_channel})
           if(parsedMsg.type == 'delete'){
               if(!isMod){
@@ -114,7 +120,7 @@ class Consumer{
             }else {
                 const userQuery = await database.getUserBySlug(parsedMsg.meta.mod.user)
                 const modQuery = await channelModUser(u_channel, userQuery.user.xid, Date.now())
-                message.content = `${userQuery.user.username} has been knighted.`
+                message.content = `@${userQuery.user.username} has been knighted.`
                 const modMsg = {
                   type: 'mod',
                   targetUser: parsedMsg.meta.mod.user,
@@ -130,6 +136,29 @@ class Consumer{
                 return channel.ack(msg)
             }
         }
+        if(parsedMsg.type == 'vip'){
+          if(!isMod){
+              console.error('User is not a mod')
+              return channel.ack(msg)
+          }else {
+              const userQuery = await database.getUserBySlug(parsedMsg.meta.vip.user)
+              const vipQuery = await channelVIPUser(u_channel, userQuery.user.xid, Date.now())
+              message.content = `@${userQuery.user.username} shines bright like a diamond.`
+              const vipMsg = {
+                type: 'mod',
+                targetUser: parsedMsg.meta.vip.user,
+                xid: nanoid(),
+                topic: packet.channel,
+                channel: u_channel,
+                user,
+                timestamp: Date.now(),
+                reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
+                content: await parseMessage({message, channel: u_channel})
+              }
+              publish("channel/chat/receive/" + vipMsg.channel, vipMsg)
+              return channel.ack(msg)
+          }
+      }
           if(parsedMsg.type == 'ban'){
             if(!isMod){
                 console.error('User is not a mod')

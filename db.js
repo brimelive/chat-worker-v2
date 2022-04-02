@@ -29,6 +29,12 @@ const getReplyTarget = async ({xid, channel})=>{
     if(rows.length > 0 || isOwner) return true
     return false
   }
+  const vipCheck = async (channel, user_xid)=>{
+    if(!channel || !user_xid) return false
+    let {rows, error} = await database.query('SELECT * FROM CHANNEL_VIPS WHERE CHANNEL_XID = :channel AND USER_XID = :user_xid', {channel, user_xid})
+    if(rows.length > 0) return true
+    return false
+  }
   const banCheck = async (channel, user_xid)=>{
     if(!channel || !user_xid) return false
     let {rows, error} = await database.query('SELECT * FROM CHAT_ACL WHERE CHANNEL_XID = :channel AND USER_XID = :user_xid', {channel, user_xid})
@@ -45,6 +51,12 @@ const getReplyTarget = async ({xid, channel})=>{
     if(!channel || !user_xid || !timestamp) return false
     const {result} = await database.query('INSERT INTO CHANNEL_MODERATORS (USER_XID, CHANNEL_XID, TIMESTAMP) VALUES (:user_xid, :channel, :timestamp)', {user_xid, channel, timestamp})
     if(result.rowsAffected > 0) return {success: true, message: `User ${user_xid} added to moderators on channel ${channel}`}
+    return {success: false, message: `User ${user_xid} not found`}
+  }
+  const channelVIPUser = async (channel, user_xid, timestamp)=>{
+    if(!channel || !user_xid || !timestamp) return false
+    const {result} = await database.query('INSERT INTO CHANNEL_VIPS (USER_XID, CHANNEL_XID, TIMESTAMP) VALUES (:user_xid, :channel, :timestamp)', {user_xid, channel, timestamp})
+    if(result.rowsAffected > 0) return {success: true, message: `User ${user_xid} added to vips on channel ${channel}`}
     return {success: false, message: `User ${user_xid} not found`}
   }
   const chatCommandsLookup = async (channel_xid)=>{
@@ -113,6 +125,8 @@ module.exports = {
     deleteMessage,
     channelBanUser,
     channelModUser,
+    channelVIPUser,
     banCheck,
     ownerCheck,
+    vipCheck,
 }
