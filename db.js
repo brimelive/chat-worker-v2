@@ -41,6 +41,12 @@ const getReplyTarget = async ({xid, channel})=>{
     if(result.rowsAffected > 0) return {success: true, message: `User ${user_xid} banned on channel ${channel}`}
     return {success: false, message: `User ${user_xid} not found`}
   }
+  const channelModUser = async (channel, user_xid, timestamp)=>{
+    if(!channel || !user_xid || !timestamp) return false
+    const {result} = await database.query('INSERT INTO CHANNEL_MODERATORS (USER_XID, CHANNEL_XID, TIMESTAMP) VALUES (:user_xid, :channel, :timestamp)', {user_xid, channel, timestamp})
+    if(result.rowsAffected > 0) return {success: true, message: `User ${user_xid} added to moderators on channel ${channel}`}
+    return {success: false, message: `User ${user_xid} not found`}
+  }
   const chatCommandsLookup = async (channel_xid)=>{
     if(!channel_xid) return false
     // AND DELETED = 0 (remove the unnecessary check unless we want to return <message:deleted> or an error (Message you're trying to reply to has been delete))
@@ -106,6 +112,7 @@ module.exports = {
     deleteMsg,
     deleteMessage,
     channelBanUser,
+    channelModUser,
     banCheck,
     ownerCheck,
 }

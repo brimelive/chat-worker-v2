@@ -23,6 +23,18 @@ const banParse = async(message, o)=>{
       }
     }
   }
+  const modParse = async(message, o)=>{
+    let user = message.content.split(' ').pop()
+    return {
+      type: 'mod',
+      meta: {
+        ...o.meta,
+        mod: {
+          user
+        }
+      }
+    }
+  }
 const parseMentions = async (message) => {
     const re = /@([^@\s]{1,})/g
     const matches = message.parsed.matchAll(re) || []
@@ -246,6 +258,9 @@ const parseMessage = async ({message, channel})=>{
   }
   if(message.content.startsWith('/delete')){
     r = {...r, ...await deleteMsg(message, r)}
+  }
+  if(message.content.startsWith('/mod')){
+    r = {...r, ...await modParse(message, r)}
   }
   if(message.content.startsWith('/ban')){
     r = {...r, ...await banParse(message, r)}

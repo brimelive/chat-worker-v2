@@ -18,6 +18,7 @@ const {
     modCheck,
     deleteMessage,
     channelBanUser,
+    channelModUser,
     banCheck,
     ownerCheck,
 } = require('./db')
@@ -77,9 +78,12 @@ class Consumer{
         }
           const channelData = await channelDataLookup(u_channel)
           if(!channelData)return{error: `Channel ${u_channel} not found.`}
-          const {user, error} = await self.db.user.get(packet.username)
+          let {user, error} = await self.db.user.get(packet.username)
           user.is_broadcaster = await ownerCheck(u_channel, user.xid)
           const isMod = await modCheck(channelData.XID, user.xid)
+          if(isMod){
+            user.is_mod = true
+          }
           const parsedMsg = await parseMessage({message, channel: u_channel})
           if(parsedMsg.type == 'delete'){
               if(!isMod){
@@ -103,6 +107,29 @@ class Consumer{
                   return channel.ack(msg)
               }
           }
+          if(parsedMsg.type == 'mod'){
+            if(!isMod){
+                console.error('User is not a mod')
+                return channel.ack(msg)
+            }else {
+                const userQuery = await database.getUserBySlug(parsedMsg.meta.mod.user)
+                const modQuery = await channelModUser(u_channel, userQuery.user.xid, Date.now())
+                message.content = `${userQuery.user.username} has been knighted.`
+                const modMsg = {
+                  type: 'mod',
+                  targetUser: parsedMsg.meta.mod.user,
+                  xid: nanoid(),
+                  topic: packet.channel,
+                  channel: u_channel,
+                  user,
+                  timestamp: Date.now(),
+                  reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
+                  content: await parseMessage({message, channel: u_channel})
+                }
+                publish("channel/chat/receive/" + modMsg.channel, modMsg)
+                return channel.ack(msg)
+            }
+        }
           if(parsedMsg.type == 'ban'){
             if(!isMod){
                 console.error('User is not a mod')
