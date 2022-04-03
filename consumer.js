@@ -79,8 +79,13 @@ class Consumer{
             return channel.ack(msg)
         }
           const channelData = await channelDataLookup(u_channel)
-          if(!channelData)return{error: `Channel ${u_channel} not found.`}
+          if(!channelData)
+          return {error: `Channel ${u_channel} not found.`}
           let {user, error} = await self.db.user.get(packet.username)
+          if(error){
+            console.error(`User not found`)
+            return channel.ack(msg)
+          }
           user.is_broadcaster = await ownerCheck(u_channel, user.xid)
           const isMod = await modCheck(channelData.XID, user.xid)
           if(isMod){
