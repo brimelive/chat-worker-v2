@@ -97,6 +97,7 @@ class Consumer{
           }
           const parsedMsg = await parseMessage({message, channel: u_channel})
           if(parsedMsg.type == 'delete'){
+              console.log('Received deleted msg request for: '+ parsedMsg.meta.delete.msg_id)
               if(!isMod){
                   console.error('User is not a mod')
                   return channel.ack(msg)
