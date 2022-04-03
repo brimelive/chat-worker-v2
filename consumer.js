@@ -23,6 +23,7 @@ const {
     channelModUser,
     banCheck,
     ownerCheck,
+    channelChatClear
 } = require('./db')
 const {
     parseMentions,
@@ -189,6 +190,29 @@ class Consumer{
                 return channel.ack(msg)
             }
         }
+        if(parsedMsg.type == 'clear'){
+          if(!isMod){
+              console.error('User is not a mod')
+              return channel.ack(msg)
+          }else {
+              message.content = `Chat has been cleared`
+              const clearMsg = {
+                type: 'clear',
+                xid: nanoid(),
+                topic: packet.channel,
+                channel: u_channel,
+                user,
+                timestamp: Date.now(),
+                reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
+                content: await parseMessage({message, channel: u_channel})
+              }
+              publish("channel/chat/receive/" + clearMsg.channel, clearMsg)
+              const now = Date.now();
+              const rewindTime = now - 3600000
+              channelChatClear(u_channel, rewindTime)
+              return channel.ack(msg)
+          }
+      }
         //   if(user.is_banned == 1){
         //     console.error(`User ${packet.username} is banned.`)
         //     user.displayname = 'UNAUTHORIZED'

@@ -35,6 +35,11 @@ const banParse = async(message, o)=>{
       }
     }
   }
+  const clearParse = async(message, o)=>{
+    return {
+      type: 'clear',
+    }
+  }
   const vipParse = async(message, o)=>{
     let user = message.content.split(' ').pop()
     return {
@@ -270,6 +275,9 @@ const parseMessage = async ({message, channel})=>{
   }
   if(message.content.startsWith('/delete')){
     r = {...r, ...await deleteMsg(message, r)}
+  }
+  if(message.content.startsWith('/clear')){
+    r = {...r, ...await clearParse(message, r)}
   }
   if(message.content.startsWith('/mod')){
     r = {...r, ...await modParse(message, r)}

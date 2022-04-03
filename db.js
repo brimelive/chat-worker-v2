@@ -59,6 +59,15 @@ const getReplyTarget = async ({xid, channel})=>{
     if(result.rowsAffected > 0) return {success: true, message: `User ${user_xid} added to vips on channel ${channel}`}
     return {success: false, message: `User ${user_xid} not found`}
   }
+  const channelChatClear = async (channel, timestamp)=>{
+    if(!channel || !timestamp) return false
+    const {result, error} = await database.query(`UPDATE CHAT_MESSAGES SET CLEARED = 1 WHERE TIMESTAMP >= :TIME AND CHANNEL = :CHANNEL_XID`, {CHANNEL_XID: channel, TIME: timestamp})
+    if(error){
+    console.log(error)
+    return {error: error}
+  }
+    if(result.rowsAffected > 0) return {success: true, message: `chat cleared for channel ${channel}`}
+  }
   const chatCommandsLookup = async (channel_xid)=>{
     if(!channel_xid) return false
     // AND DELETED = 0 (remove the unnecessary check unless we want to return <message:deleted> or an error (Message you're trying to reply to has been delete))
@@ -133,4 +142,5 @@ module.exports = {
     banCheck,
     ownerCheck,
     vipCheck,
+    channelChatClear,
 }
