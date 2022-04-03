@@ -97,7 +97,6 @@ class Consumer{
                   return channel.ack(msg)
               }else {
                   const linkedXID = await self.db.getLinkedMsgXID(parsedMsg.meta.delete.msg_id)
-                  console.log(linkedXID)
                   const deleteQuery = await deleteMessage(linkedXID)
                   console.log(deleteQuery)
                   const deleteMsg = {
@@ -133,6 +132,7 @@ class Consumer{
                   content: await parseMessage({message, channel: u_channel})
                 }
                 publish("channel/chat/receive/" + modMsg.channel, modMsg)
+                self.db.message.store(modMsg)
                 return channel.ack(msg)
             }
         }
@@ -156,6 +156,7 @@ class Consumer{
                 content: await parseMessage({message, channel: u_channel})
               }
               publish("channel/chat/receive/" + vipMsg.channel, vipMsg)
+              self.db.message.store(vipMsg)
               return channel.ack(msg)
           }
       }
@@ -247,7 +248,6 @@ class Consumer{
           channelLangs = channelLangs.filter(a => a !== 'captions')
           channelLangs = channelLangs.filter(a => a !== 'english')
           channelLangs = channelLangs.filter(a => a !== 'source')
-          console.log(channelLangs)
           // TRANSLATION STUFF
           function translateMsg(msg, lang) {
            const supportsFormality = [
@@ -298,6 +298,27 @@ class Consumer{
               console.error(error)
           })
           }
+          const sender_lang = user.chat_lang.toLowerCase()
+          console.log('Sender lang: ' + sender_lang)
+          channelLangs = channelLangs.filter(a => a !== sender_lang)
+          async function sendOnSource(sender_language){
+          const base = {
+            xid: nanoid(),
+            linked_xid: return_message.xid,
+            topic: packet.channel,
+            channel: u_channel,
+            user,
+            timestamp: Date.now(),
+            reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
+            content: parsedMsg,
+            lang: sender_language
+          }
+          publish("channel/chat/receive/" + return_message.channel + '/' + sender_language, base)
+          self.db.message.store(base)
+        }
+        sendOnSource(sender_lang)
+        console.log({sender_lang})
+        console.log({channel_langs: channelLangs})
           channelLangs.forEach(async (lang) => {
             translateMsg(parsedMsg.raw, lang)
           })
