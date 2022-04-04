@@ -379,7 +379,7 @@ class Consumer{
               timestamp: Date.now(),
               reply: await getReplyTarget({xid: message.reply_target, channel: u_channel}),
               content: await parseMessage({message, channel: u_channel}),
-              lang: sender_language
+              lang: sender_lang
             }
             self.db.message.store(commandMsg)
             publish("channel/chat/receive/" + commandMsg.channel, commandMsg)
