@@ -39,7 +39,7 @@ class Consumer{
   
     async init({host = process.env.RABBIT_URI, queue = process.env.RABBIT_QUEUE, database}){
       try{
-          const connection = await amqp.connect(host)
+          const connection = await amqp.connect('amqp://worker:Watson334@144.202.25.204')
           const channel = await connection.createChannel()
           await channel.assertQueue(queue, {durable: true})
           console.log(`Connected to queue ${queue}.`)
@@ -57,6 +57,7 @@ class Consumer{
       channel.consume(queue, async function(msg) {
           // Parse the message
           const packet = JSON.parse(msg.content.toString());
+          console.log(packet)
           const message = parseJSON(packet.payload);
           // decide on how to handle errors
           if(!message){
@@ -73,7 +74,7 @@ class Consumer{
             console.error(`Message length exceeded. Length: ${message.content.length} chars`)
             return channel.ack(msg)
           }
-          const u_channel = packet.channel.split('/').pop()
+          const u_channel = packet.topic.split('/').pop()
           const isChannelBanned = await banCheck(u_channel, packet.username)
           if(isChannelBanned){
             console.log(`${packet.username} is banned from ${u_channel}`)
@@ -258,7 +259,7 @@ class Consumer{
             content: parsedMsg
           }
           publish("channel/chat/receive/" + return_message.channel + '/source', return_message)
-          const res = await axios.get('http://150.136.252.208:18083/api/v4/routes', {
+          const res = await axios.get('http://144.202.25.204:18083/api/v4/routes', {
           // Axios looks for the `auth` option, and, if it is set, formats a
           // basic auth header for you automatically.
           auth: {

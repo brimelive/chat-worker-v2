@@ -1,7 +1,7 @@
 
 const mqtt = require('mqtt')
 
-async function init({host = 'wss://chat.brime.tv/ws', idGenerator = ()=>{}, options = {}}){
+async function init({host = 'wss://chat.brime.tv:8443/ws', idGenerator = ()=>{}, options = {}}){
     return new Promise((resolve, reject)=>{
       const clientId = idGenerator()
         const config = {
